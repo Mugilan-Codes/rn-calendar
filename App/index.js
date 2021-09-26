@@ -1,11 +1,13 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {SafeAreaView, View, Text} from 'react-native';
+
+import CalendarViewScreen from './screens/CalendarView';
 
 const App = () => {
   return (
-    <View>
-      <Text>Calendar</Text>
-    </View>
+    <SafeAreaView style={{flex: 1}}>
+      <CalendarViewScreen />
+    </SafeAreaView>
   );
 };
 
