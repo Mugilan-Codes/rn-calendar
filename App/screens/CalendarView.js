@@ -1,32 +1,13 @@
 import React from 'react';
-import {View, Text, FlatList, Dimensions} from 'react-native';
+import {View, Text, FlatList} from 'react-native';
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-const getFirstDayInMonth = (year, month) => {
-  return new Date(year, month).getDay();
-};
-
-const getDaysInMonth = (year, month) => {
-  let day32Month = new Date(year, month, 32).getDate(); // 32nd day after month started
-
-  return 32 - day32Month;
-};
+import {SCREEN_HEIGHT, WINDOW_WIDTH} from '../utils/Dimensions';
+import {WEEKDAYS_SHORT, MONTHS} from '../constants';
+import {
+  getFirstDayInMonth,
+  getDaysInMonth,
+  getCalendarMonth,
+} from '../utils/days';
 
 const CalendarViewScreen = () => {
   let Calendar = new Date();
@@ -35,49 +16,67 @@ const CalendarViewScreen = () => {
   let today = Calendar.getDate();
   let weekday = Calendar.getDay();
 
+  getCalendarMonth(2020, 3);
   let firstDay = getFirstDayInMonth(currentYear, currentMonth);
-  console.log(firstDay);
 
   let daysInMonth = getDaysInMonth(currentYear, currentMonth);
 
   // REF: generate number array - https://stackoverflow.com/a/38213213/12381908
-  let numArray = [...Array(daysInMonth).keys()].map(i => i + 1);
-  let numArray2 = [...Array(daysInMonth + firstDay).keys()].map(i => i + 1);
-  console.log(numArray2);
+  // let numArray = [...Array(daysInMonth).keys()].map(i => i + 1);
+  let numArray = new Array(firstDay).fill(0);
+  numArray.push.apply(
+    numArray,
+    [...Array(daysInMonth).keys()].map(i => i + 1),
+  );
+
+  // let displayArray = [...WEEKDAYS_SHORT].concat(numArray);
+  // console.log(displayArray);
 
   return (
-    <View style={{flex: 1}}>
+    <View>
+      <View style={{alignItems: 'center'}}>
+        <Text>{'<--'}</Text>
+
+        <Text>{MONTHS[currentMonth]}</Text>
+
+        <Text>{currentYear}</Text>
+
+        <Text>{'-->'}</Text>
+      </View>
+
       <View
         style={{
-          flex: 1,
           flexDirection: 'row',
           justifyContent: 'space-around',
         }}>
-        <Text style={{flex: 1, textAlign: 'center'}}>Sun</Text>
-        <Text style={{flex: 1, textAlign: 'center'}}>Mon</Text>
-        <Text style={{flex: 1, textAlign: 'center'}}>Tue</Text>
-        <Text style={{flex: 1, textAlign: 'center'}}>Wed</Text>
-        <Text style={{flex: 1, textAlign: 'center'}}>Thu</Text>
-        <Text style={{flex: 1, textAlign: 'center'}}>Fri</Text>
-        <Text style={{flex: 1, textAlign: 'center'}}>Sat</Text>
+        {WEEKDAYS_SHORT.map((day, idx) => (
+          <Text key={idx} style={{flex: 1, textAlign: 'center'}}>
+            {day}
+          </Text>
+        ))}
       </View>
 
       <View>
         <FlatList
           data={numArray}
           numColumns={7}
+          extraData={today}
           renderItem={({item, index}) => {
-            if (index === 0) {
-              console.log(DAYS[firstDay]);
+            if (item == today) {
+              console.log(`Today is ${today} (${WEEKDAYS_SHORT[weekday]})`);
             }
 
             return (
               <View
                 style={{
-                  width: Dimensions.get('window').width / 7,
+                  width: WINDOW_WIDTH / 7,
+                  height: SCREEN_HEIGHT / 14,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: item === today && 'red',
                 }}
                 key={index}>
-                <Text style={{textAlign: 'center'}}>{item}</Text>
+                <Text style={{textAlign: 'center'}}>{item !== 0 && item}</Text>
               </View>
             );
           }}
