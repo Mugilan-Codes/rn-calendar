@@ -1,56 +1,104 @@
-import React from 'react';
-import {View, Text, FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 
 import {SCREEN_HEIGHT, WINDOW_WIDTH} from '../utils/Dimensions';
 import {WEEKDAYS_SHORT, MONTHS} from '../constants';
-import {
-  getFirstDayInMonth,
-  getDaysInMonth,
-  getCalendarMonth,
-} from '../utils/days';
+import {getCalendarMonth, generateDatesArray} from '../utils/days';
 
+// TODO: Maintain today's date
+// TODO: add events
 const CalendarViewScreen = () => {
-  let Calendar = new Date();
-  let currentYear = Calendar.getFullYear();
-  let currentMonth = Calendar.getMonth();
-  let today = Calendar.getDate();
-  let weekday = Calendar.getDay();
+  const [current, setCurrent] = useState({
+    month: null,
+    year: null,
+    today: null,
+    weekday: null,
+  });
+  const [calendarYear, setCalendarYear] = useState();
+  const [calendarMonth, setCalendarMonth] = useState();
 
-  getCalendarMonth(2020, 3);
-  let firstDay = getFirstDayInMonth(currentYear, currentMonth);
+  let todayCalendar = new Date();
+  const currentYear = todayCalendar.getFullYear();
+  const currentMonth = todayCalendar.getMonth();
+  const today = todayCalendar.getDate();
+  const weekday = todayCalendar.getDay();
 
-  let daysInMonth = getDaysInMonth(currentYear, currentMonth);
+  useEffect(() => {
+    let Cal = new Date();
+    const {fullMonth, fullYear} = getCalendarMonth();
 
-  // REF: generate number array - https://stackoverflow.com/a/38213213/12381908
-  // let numArray = [...Array(daysInMonth).keys()].map(i => i + 1);
-  let numArray = new Array(firstDay).fill(0);
-  numArray.push.apply(
-    numArray,
-    [...Array(daysInMonth).keys()].map(i => i + 1),
-  );
+    setCalendarMonth(fullMonth);
+    setCalendarYear(fullYear);
+
+    setCurrent({
+      month: fullMonth,
+      year: fullYear,
+      today: Cal.getDate(),
+      weekday: Cal.getDay(),
+    });
+  }, []);
 
   // let displayArray = [...WEEKDAYS_SHORT].concat(numArray);
   // console.log(displayArray);
 
+  let numArray = generateDatesArray(current.year, current.month);
+  console.log(current.today);
+
+  const nextMonth = () => {
+    let nextYearTemp = current.year;
+    nextYearTemp = current.month === 11 ? nextYearTemp + 1 : nextYearTemp;
+
+    let nextMonthTemp = (current.month + 1) % 12;
+
+    setCurrent({year: nextYearTemp, month: nextMonthTemp});
+    setCalendarMonth(nextMonthTemp);
+    setCalendarYear(nextYearTemp);
+  };
+  const previousMonth = () => {
+    let previousYearTemp =
+      current.month === 0 ? current.year - 1 : current.year;
+
+    let previousMonthTemp = current.month === 0 ? 11 : current.month - 1;
+
+    setCurrent({year: previousYearTemp, month: previousMonthTemp});
+    setCalendarMonth(previousMonthTemp);
+    setCalendarYear(previousYearTemp);
+  };
+
+  const renderItem = ({item, index}) => {
+    return (
+      <View
+        style={[
+          styles.dateItemView,
+          {backgroundColor: item === current.today && 'red'},
+        ]}
+        key={index}>
+        <Text style={styles.dateItemText}>{item !== 0 && item}</Text>
+      </View>
+    );
+  };
+
   return (
-    <View>
-      <View style={{alignItems: 'center'}}>
-        <Text>{'<--'}</Text>
+    <View style={styles.container}>
+      <View style={styles.monthHeadingView}>
+        <TouchableOpacity onPress={previousMonth}>
+          <Text>Prev</Text>
+        </TouchableOpacity>
 
-        <Text>{MONTHS[currentMonth]}</Text>
+        <View style={{alignItems: 'center'}}>
+          <Text>{MONTHS[current.month]}</Text>
 
-        <Text>{currentYear}</Text>
+          <Text>{current.year}</Text>
+        </View>
 
-        <Text>{'-->'}</Text>
+        <TouchableOpacity onPress={nextMonth}>
+          <Text>Next</Text>
+        </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-        }}>
+      <View style={styles.dayHeadingView}>
         {WEEKDAYS_SHORT.map((day, idx) => (
-          <Text key={idx} style={{flex: 1, textAlign: 'center'}}>
+          <Text key={idx} style={styles.dayHeadingText}>
             {day}
           </Text>
         ))}
@@ -60,30 +108,38 @@ const CalendarViewScreen = () => {
         <FlatList
           data={numArray}
           numColumns={7}
-          extraData={today}
-          renderItem={({item, index}) => {
-            if (item == today) {
-              console.log(`Today is ${today} (${WEEKDAYS_SHORT[weekday]})`);
-            }
-
-            return (
-              <View
-                style={{
-                  width: WINDOW_WIDTH / 7,
-                  height: SCREEN_HEIGHT / 14,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: item === today && 'red',
-                }}
-                key={index}>
-                <Text style={{textAlign: 'center'}}>{item !== 0 && item}</Text>
-              </View>
-            );
-          }}
+          extraData={current.today}
+          renderItem={renderItem}
         />
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {},
+  monthHeadingView: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dayHeadingView: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  dayHeadingText: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  dateItemView: {
+    width: WINDOW_WIDTH / 7,
+    height: SCREEN_HEIGHT / 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dateItemText: {
+    textAlign: 'center',
+  },
+});
 
 export default CalendarViewScreen;
