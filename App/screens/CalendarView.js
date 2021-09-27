@@ -5,15 +5,8 @@ import {SCREEN_HEIGHT, WINDOW_WIDTH} from '../utils/Dimensions';
 import {WEEKDAYS_SHORT, MONTHS} from '../constants';
 import {getCalendarMonth, generateDatesArray} from '../utils/days';
 
-// TODO: Maintain today's date
-// TODO: add events
+// TODO: add events - store year, month, date
 const CalendarViewScreen = () => {
-  const [current, setCurrent] = useState({
-    month: null,
-    year: null,
-    today: null,
-    weekday: null,
-  });
   const [calendarYear, setCalendarYear] = useState();
   const [calendarMonth, setCalendarMonth] = useState();
 
@@ -24,43 +17,28 @@ const CalendarViewScreen = () => {
   const weekday = todayCalendar.getDay();
 
   useEffect(() => {
-    let Cal = new Date();
     const {fullMonth, fullYear} = getCalendarMonth();
 
     setCalendarMonth(fullMonth);
     setCalendarYear(fullYear);
-
-    setCurrent({
-      month: fullMonth,
-      year: fullYear,
-      today: Cal.getDate(),
-      weekday: Cal.getDay(),
-    });
   }, []);
 
-  // let displayArray = [...WEEKDAYS_SHORT].concat(numArray);
-  // console.log(displayArray);
-
-  let numArray = generateDatesArray(current.year, current.month);
-  console.log(current.today);
+  let numArray = generateDatesArray(calendarYear, calendarMonth);
 
   const nextMonth = () => {
-    let nextYearTemp = current.year;
-    nextYearTemp = current.month === 11 ? nextYearTemp + 1 : nextYearTemp;
+    let nextYearTemp = calendarYear;
+    nextYearTemp = calendarMonth === 11 ? nextYearTemp + 1 : nextYearTemp;
 
-    let nextMonthTemp = (current.month + 1) % 12;
-
-    setCurrent({year: nextYearTemp, month: nextMonthTemp});
+    let nextMonthTemp = (calendarMonth + 1) % 12;
     setCalendarMonth(nextMonthTemp);
     setCalendarYear(nextYearTemp);
   };
   const previousMonth = () => {
     let previousYearTemp =
-      current.month === 0 ? current.year - 1 : current.year;
+      calendarMonth === 0 ? calendarYear - 1 : calendarYear;
 
-    let previousMonthTemp = current.month === 0 ? 11 : current.month - 1;
+    let previousMonthTemp = calendarMonth === 0 ? 11 : calendarMonth - 1;
 
-    setCurrent({year: previousYearTemp, month: previousMonthTemp});
     setCalendarMonth(previousMonthTemp);
     setCalendarYear(previousYearTemp);
   };
@@ -70,7 +48,13 @@ const CalendarViewScreen = () => {
       <View
         style={[
           styles.dateItemView,
-          {backgroundColor: item === current.today && 'red'},
+          {
+            backgroundColor:
+              item === today &&
+              calendarMonth === currentMonth &&
+              calendarYear === currentYear &&
+              'red',
+          },
         ]}
         key={index}>
         <Text style={styles.dateItemText}>{item !== 0 && item}</Text>
@@ -86,9 +70,9 @@ const CalendarViewScreen = () => {
         </TouchableOpacity>
 
         <View style={{alignItems: 'center'}}>
-          <Text>{MONTHS[current.month]}</Text>
+          <Text>{MONTHS[calendarMonth]}</Text>
 
-          <Text>{current.year}</Text>
+          <Text>{calendarYear}</Text>
         </View>
 
         <TouchableOpacity onPress={nextMonth}>
@@ -108,7 +92,7 @@ const CalendarViewScreen = () => {
         <FlatList
           data={numArray}
           numColumns={7}
-          extraData={current.today}
+          extraData={today}
           renderItem={renderItem}
         />
       </View>
