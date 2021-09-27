@@ -1,5 +1,5 @@
 import React from 'react';
-import {SafeAreaView, View, Text} from 'react-native';
+import {SafeAreaView} from 'react-native';
 
 import CalendarViewScreen from './screens/CalendarView';
 import EventsScreen from './screens/Events';
