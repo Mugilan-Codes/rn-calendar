@@ -27,7 +27,7 @@ const CalendarViewScreen = () => {
     setCalendarMonth,
   } = useCalendar();
 
-  let numArray = generateDatesArray(calendarYear, calendarMonth);
+  const numArray = generateDatesArray(calendarYear, calendarMonth);
 
   const nextMonth = () => {
     let nextYearTemp = calendarYear;
@@ -101,18 +101,24 @@ const CalendarViewScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.monthHeadingView}>
-        <TouchableOpacity onPress={previousMonth}>
-          <Text>Prev</Text>
+        <TouchableOpacity
+          onPress={previousMonth}
+          style={{marginLeft: 10, backgroundColor: 'red', padding: 15}}>
+          <Text>{`<--`}</Text>
         </TouchableOpacity>
 
         <View style={{alignItems: 'center'}}>
-          <Text>{MONTHS[calendarMonth]}</Text>
+          <Text style={{textTransform: 'uppercase', fontSize: 20}}>
+            {MONTHS[calendarMonth]}
+          </Text>
 
-          <Text>{calendarYear}</Text>
+          <Text style={{fontSize: 20}}>{calendarYear}</Text>
         </View>
 
-        <TouchableOpacity onPress={nextMonth}>
-          <Text>Next</Text>
+        <TouchableOpacity
+          onPress={nextMonth}
+          style={{marginRight: 10, backgroundColor: 'red', padding: 15}}>
+          <Text>{`-->`}</Text>
         </TouchableOpacity>
       </View>
 
@@ -142,6 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingVertical: 10,
   },
   dayHeadingView: {
     flexDirection: 'row',
