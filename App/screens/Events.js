@@ -2,33 +2,39 @@ import React from 'react';
 import {View, Text, StyleSheet, FlatList} from 'react-native';
 
 import {useEvents} from '../contexts/events';
-
-const Item = ({date, month, year, description}) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>
-      {date} / {month} / {year} {description ?? description}
-    </Text>
-  </View>
-);
+import EventItem from '../components/EventItem';
+import {useCalendar} from '../contexts/calendar';
 
 const EventsScreen = () => {
   const {events} = useEvents();
+  const {calendarYear, calendarMonth} = useCalendar();
 
-  const renderItem = ({item, idx}) => (
-    <Item
-      key={idx}
-      date={item.date}
-      month={item.month}
-      year={item.year}
-      description={item.description}
-    />
-  );
+  const DATA = [...events];
+  DATA.sort(function (a, b) {
+    return a.year - b.year || a.month - b.month || a.date - b.date;
+  });
+
+  const renderItem = ({item, idx}) => {
+    if (item.month !== calendarMonth || item.year !== calendarYear) {
+      return;
+    }
+
+    return (
+      <EventItem
+        key={idx}
+        date={item.date}
+        month={item.month}
+        year={item.year}
+        description={item.description}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Events</Text>
 
-      <FlatList data={events} renderItem={renderItem} />
+      <FlatList data={DATA} renderItem={renderItem} />
     </View>
   );
 };
@@ -41,15 +47,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textTransform: 'uppercase',
     letterSpacing: 1.5,
-  },
-  item: {
-    backgroundColor: '#f9c2ff',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-  },
-  title: {
-    fontSize: 32,
   },
 });
 

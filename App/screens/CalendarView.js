@@ -1,21 +1,31 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {
+  Alert,
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 
 import {SCREEN_HEIGHT, WINDOW_WIDTH} from '../utils/Dimensions';
 import {WEEKDAYS_SHORT, MONTHS} from '../constants';
 import {generateDatesArray} from '../utils/days';
+import {useEvents} from '../contexts/events';
+import {useCalendar} from '../contexts/calendar';
 
-// TODO: add events - store year, month, date
 const CalendarViewScreen = () => {
-  const todayCalendar = new Date();
-  const currentYear = todayCalendar.getFullYear();
-  const currentMonth = todayCalendar.getMonth();
-
-  const [calendarYear, setCalendarYear] = useState(currentYear);
-  const [calendarMonth, setCalendarMonth] = useState(currentMonth);
-
-  const today = todayCalendar.getDate();
-  const weekday = todayCalendar.getDay();
+  const {addEvent, isEvent} = useEvents();
+  const {
+    currentYear,
+    currentMonth,
+    today,
+    weekday,
+    calendarYear,
+    setCalendarYear,
+    calendarMonth,
+    setCalendarMonth,
+  } = useCalendar();
 
   let numArray = generateDatesArray(calendarYear, calendarMonth);
 
@@ -37,6 +47,24 @@ const CalendarViewScreen = () => {
     setCalendarYear(previousYearTemp);
   };
 
+  const handleOnPress = ({date, month, year}) => {
+    return Alert.alert(
+      `Are you sure?`,
+      `Add Event on ${date}/${month + 1}/${year}`,
+      [
+        {
+          text: 'Yes',
+          onPress: () => {
+            addEvent({date, month, year});
+          },
+        },
+        {
+          text: 'No',
+        },
+      ],
+    );
+  };
+
   const renderItem = ({item, index}) => {
     if (item === 0) {
       return <View style={styles.dateItemView}></View>;
@@ -47,16 +75,24 @@ const CalendarViewScreen = () => {
       calendarMonth === currentMonth &&
       calendarYear === currentYear;
 
+    const isEventDay = isEvent({
+      date: item,
+      month: calendarMonth,
+      year: calendarYear,
+    });
+
     return (
       <TouchableOpacity
         style={[
           styles.dateItemView,
-          {
-            backgroundColor: isToday && 'red',
-          },
+          isToday && {backgroundColor: 'red'},
+          isEventDay && {backgroundColor: 'green'},
+          isToday && isEventDay && {backgroundColor: 'blue'},
         ]}
         key={index}
-        onPress={() => console.log(item)}>
+        onPress={() =>
+          handleOnPress({date: item, month: calendarMonth, year: calendarYear})
+        }>
         <Text style={styles.dateItemText}>{item}</Text>
       </TouchableOpacity>
     );
