@@ -3,21 +3,23 @@ import React, {createContext, useContext, useState, useMemo} from 'react';
 const EventsContext = createContext();
 
 const EventsProvider = ({children}) => {
-  const [events, setEvents] = useState([
-    {date: 27, year: 2021, month: 3, description: 'Test'},
-    {date: 15, year: 2016, month: 5},
-    {date: 29, year: 2020, month: 2},
-    {date: 3, year: 2021, month: 8},
-    {date: 19, year: 2018, month: 4},
-  ]);
+  const [events, setEvents] = useState([]);
 
-  const addEvent = (day, month, year, description) => {
-    setEvents([...events, {day, month, year, description}]);
+  const addEvent = ({date, month, year, description = ''}) => {
+    setEvents([...events, {date, month, year, description}]);
+  };
+
+  const isEvent = ({date, month, year}) => {
+    const index = events.findIndex(
+      item => item.date === date && item.month === month && item.year === year,
+    );
+
+    return index !== -1;
   };
 
   const value = useMemo(
-    () => ({events, setEvents, addEvent}),
-    [events, setEvents, addEvent],
+    () => ({events, addEvent, isEvent}),
+    [events, addEvent, isEvent],
   );
 
   return (
