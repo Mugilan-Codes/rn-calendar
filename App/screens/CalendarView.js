@@ -3,25 +3,19 @@ import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 
 import {SCREEN_HEIGHT, WINDOW_WIDTH} from '../utils/Dimensions';
 import {WEEKDAYS_SHORT, MONTHS} from '../constants';
-import {getCalendarMonth, generateDatesArray} from '../utils/days';
+import {generateDatesArray} from '../utils/days';
 
 // TODO: add events - store year, month, date
 const CalendarViewScreen = () => {
-  const [calendarYear, setCalendarYear] = useState();
-  const [calendarMonth, setCalendarMonth] = useState();
-
-  let todayCalendar = new Date();
+  const todayCalendar = new Date();
   const currentYear = todayCalendar.getFullYear();
   const currentMonth = todayCalendar.getMonth();
+
+  const [calendarYear, setCalendarYear] = useState(currentYear);
+  const [calendarMonth, setCalendarMonth] = useState(currentMonth);
+
   const today = todayCalendar.getDate();
   const weekday = todayCalendar.getDay();
-
-  useEffect(() => {
-    const {fullMonth, fullYear} = getCalendarMonth();
-
-    setCalendarMonth(fullMonth);
-    setCalendarYear(fullYear);
-  }, []);
 
   let numArray = generateDatesArray(calendarYear, calendarMonth);
 
@@ -44,21 +38,27 @@ const CalendarViewScreen = () => {
   };
 
   const renderItem = ({item, index}) => {
+    if (item === 0) {
+      return <View style={styles.dateItemView}></View>;
+    }
+
+    const isToday =
+      item === today &&
+      calendarMonth === currentMonth &&
+      calendarYear === currentYear;
+
     return (
-      <View
+      <TouchableOpacity
         style={[
           styles.dateItemView,
           {
-            backgroundColor:
-              item === today &&
-              calendarMonth === currentMonth &&
-              calendarYear === currentYear &&
-              'red',
+            backgroundColor: isToday && 'red',
           },
         ]}
-        key={index}>
-        <Text style={styles.dateItemText}>{item !== 0 && item}</Text>
-      </View>
+        key={index}
+        onPress={() => console.log(item)}>
+        <Text style={styles.dateItemText}>{item}</Text>
+      </TouchableOpacity>
     );
   };
 

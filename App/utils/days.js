@@ -8,10 +8,7 @@ const getDaysInMonth = (year, month) => {
   return 32 - day32Month;
 };
 
-export const getCalendarMonth = (
-  year = new Date().getFullYear(),
-  month = new Date().getMonth(),
-) => {
+export const getCalendarMonth = (year, month) => {
   const Calendar = new Date(year, month % 12);
 
   const fullYear = Calendar.getFullYear();
