@@ -20,7 +20,6 @@ const CalendarViewScreen = () => {
     currentYear,
     currentMonth,
     today,
-    weekday,
     calendarYear,
     setCalendarYear,
     calendarMonth,
@@ -48,6 +47,13 @@ const CalendarViewScreen = () => {
   };
 
   const handleOnPress = ({date, month, year}) => {
+    console.log({today, currentMonth, currentYear});
+    const DateCheck = new Date(year, month, date);
+
+    if (DateCheck < Date.now()) {
+      return;
+    }
+
     return Alert.alert(
       `Are you sure?`,
       `Add Event on ${date}/${month + 1}/${year}`,

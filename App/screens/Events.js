@@ -30,11 +30,23 @@ const EventsScreen = () => {
     );
   };
 
+  const _ListEmptyComponent = () => {
+    return (
+      <View>
+        <Text>No Events</Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Events</Text>
 
-      <FlatList data={DATA} renderItem={renderItem} />
+      <FlatList
+        data={DATA}
+        renderItem={renderItem}
+        ListEmptyComponent={_ListEmptyComponent}
+      />
     </View>
   );
 };
